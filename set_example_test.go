@@ -20,6 +20,10 @@ func ExampleSet() {
 
 	// Output:
 	// set metrics:
+	// # HELP set_counter
+	// # TYPE set_counter counter
 	// set_counter 1
+	// # HELP set_gauge
+	// # TYPE set_gauge gauge
 	// set_gauge{foo="bar"} 42
 }

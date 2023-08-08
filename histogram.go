@@ -270,6 +270,10 @@ func (h *Histogram) marshalToPrometheus(prefix string, w io.Writer) {
 	fmt.Fprintf(w, "%s_count%s %d\n", name, labels, countTotal)
 }
 
+func (h *Histogram) metricType() string {
+	return "histogram"
+}
+
 func (h *Histogram) getSum() float64 {
 	h.mu.Lock()
 	sum := h.sum
