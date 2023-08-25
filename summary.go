@@ -31,6 +31,26 @@ type Summary struct {
 	window time.Duration
 }
 
+func (s *Summary) GetSum() float64 {
+	return s.sum
+}
+
+func (s *Summary) GetCount() uint64 {
+	return s.count
+}
+
+func (s *Summary) GetTime() time.Duration {
+	return s.window
+}
+
+func (s *Summary) GetQuantiles() []float64 {
+	return s.quantiles
+}
+
+func (s *Summary) GetQuantileValues() []float64 {
+	return s.quantileValues
+}
+
 // NewSummary creates and returns new summary with the given name.
 //
 // name must be valid Prometheus-compatible metric with possible labels.
