@@ -16,8 +16,13 @@ import (
 //   - foo{bar="baz",aaa="b"}
 //
 // The returned counter is safe to use from concurrent goroutines.
-func NewCounter(name string) *Counter {
-	return defaultSet.NewCounter(name)
+func NewCounter(name string, isGauge ...bool) *Counter {
+	c := defaultSet.NewCounter(name)
+	if len(isGauge) > 0 {
+		c.isGauge = isGauge[0]
+	}
+
+	return c
 }
 
 // Counter is a counter.
@@ -85,6 +90,10 @@ func (c *Counter) marshalTo(prefix string, w io.Writer) {
 // The returned counter is safe to use from concurrent goroutines.
 //
 // Performance tip: prefer NewCounter instead of GetOrCreateCounter.
-func GetOrCreateCounter(name string) *Counter {
-	return defaultSet.GetOrCreateCounter(name)
+func GetOrCreateCounter(name string, isGauge ...bool) *Counter {
+	c := defaultSet.GetOrCreateCounter(name)
+	if len(isGauge) > 0 {
+		c.isGauge = isGauge[0]
+	}
+	return c
 }
