@@ -24,7 +24,12 @@ func NewCounter(name string) *Counter {
 //
 // It may be used as a gauge if Dec and Set are called.
 type Counter struct {
-	n uint64
+	n       uint64
+	isGauge bool
+}
+
+func (c *Counter) IsGauge() bool {
+	return c.isGauge
 }
 
 // Inc increments c.
@@ -35,10 +40,14 @@ func (c *Counter) Inc() {
 // Dec decrements c.
 func (c *Counter) Dec() {
 	atomic.AddUint64(&c.n, ^uint64(0))
+	c.isGauge = true
 }
 
 // Add adds n to c.
 func (c *Counter) Add(n int) {
+	if n < 0 {
+		c.isGauge = true
+	}
 	atomic.AddUint64(&c.n, uint64(n))
 }
 
@@ -49,6 +58,10 @@ func (c *Counter) Get() uint64 {
 
 // Set sets c value to n.
 func (c *Counter) Set(n uint64) {
+	if n < c.n {
+		c.isGauge = true
+	}
+
 	atomic.StoreUint64(&c.n, n)
 }
 
