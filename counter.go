@@ -19,7 +19,7 @@ import (
 func NewCounter(name string, isGauge ...bool) *Counter {
 	c := defaultSet.NewCounter(name)
 	if len(isGauge) > 0 {
-		c.isGauge = isGauge[0]
+		c.isGauge.Store(isGauge[0])
 	}
 
 	return c
@@ -30,11 +30,11 @@ func NewCounter(name string, isGauge ...bool) *Counter {
 // It may be used as a gauge if Dec and Set are called.
 type Counter struct {
 	n       uint64
-	isGauge bool
+	isGauge atomic.Bool
 }
 
 func (c *Counter) IsGauge() bool {
-	return c.isGauge
+	return c.isGauge.Load()
 }
 
 // Inc increments c.
@@ -45,13 +45,13 @@ func (c *Counter) Inc() {
 // Dec decrements c.
 func (c *Counter) Dec() {
 	atomic.AddUint64(&c.n, ^uint64(0))
-	c.isGauge = true
+	c.isGauge.Store(true)
 }
 
 // Add adds n to c.
 func (c *Counter) Add(n int) {
 	if n < 0 {
-		c.isGauge = true
+		c.isGauge.Store(true)
 	}
 	atomic.AddUint64(&c.n, uint64(n))
 }
@@ -64,7 +64,7 @@ func (c *Counter) Get() uint64 {
 // Set sets c value to n.
 func (c *Counter) Set(n uint64) {
 	if n < c.n {
-		c.isGauge = true
+		c.isGauge.Store(true)
 	}
 
 	atomic.StoreUint64(&c.n, n)
@@ -93,7 +93,7 @@ func (c *Counter) marshalTo(prefix string, w io.Writer) {
 func GetOrCreateCounter(name string, isGauge ...bool) *Counter {
 	c := defaultSet.GetOrCreateCounter(name)
 	if len(isGauge) > 0 {
-		c.isGauge = isGauge[0]
+		c.isGauge.Store(isGauge[0])
 	}
 	return c
 }
