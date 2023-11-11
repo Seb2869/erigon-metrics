@@ -44,8 +44,7 @@ func (c *Counter) Inc() {
 
 // Dec decrements c.
 func (c *Counter) Dec() {
-	c.n.Add(-1)
-	//atomic.AddUint64(&c.n, ^uint64(0))
+	c.n.Add(^uint64(0))
 	c.isGauge.Store(true)
 }
 
