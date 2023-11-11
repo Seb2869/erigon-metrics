@@ -29,7 +29,7 @@ func NewCounter(name string, isGauge ...bool) *Counter {
 //
 // It may be used as a gauge if Dec and Set are called.
 type Counter struct {
-	n       uint64
+	n       atomic.Uint64
 	isGauge atomic.Bool
 }
 
@@ -39,12 +39,13 @@ func (c *Counter) IsGauge() bool {
 
 // Inc increments c.
 func (c *Counter) Inc() {
-	atomic.AddUint64(&c.n, 1)
+	c.n.Add(1)
 }
 
 // Dec decrements c.
 func (c *Counter) Dec() {
-	atomic.AddUint64(&c.n, ^uint64(0))
+	c.n.Add(-1)
+	//atomic.AddUint64(&c.n, ^uint64(0))
 	c.isGauge.Store(true)
 }
 
@@ -53,21 +54,21 @@ func (c *Counter) Add(n int) {
 	if n < 0 {
 		c.isGauge.Store(true)
 	}
-	atomic.AddUint64(&c.n, uint64(n))
+	c.n.Add(uint64(n))
 }
 
 // Get returns the current value for c.
 func (c *Counter) Get() uint64 {
-	return atomic.LoadUint64(&c.n)
+	return c.n.Load()
 }
 
 // Set sets c value to n.
 func (c *Counter) Set(n uint64) {
-	if n < c.n {
+	if n < c.n.Load() {
 		c.isGauge.Store(true)
 	}
 
-	atomic.StoreUint64(&c.n, n)
+	c.n.Store(n)
 }
 
 // marshalTo marshals c with the given prefix to w.
