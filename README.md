@@ -90,13 +90,6 @@ See [docs](http://godoc.org/github.com/VictoriaMetrics/metrics) for more info.
 Because the `github.com/prometheus/client_golang` is too complex and is hard to use.
 
 
-#### Why the `metrics.WritePrometheus` doesn't expose documentation for each metric?
-
-Because this documentation is ignored by Prometheus. The documentation is for users.
-Just give [meaningful names to the exported metrics](https://prometheus.io/docs/practices/naming/#metric-names)
-or add comments in the source code or in other suitable place explaining each metric exposed from your application.
-
-
 #### How to implement [CounterVec](https://godoc.org/github.com/prometheus/client_golang/prometheus#CounterVec) in `metrics`?
 
 Just use [GetOrCreateCounter](http://godoc.org/github.com/VictoriaMetrics/metrics#GetOrCreateCounter)

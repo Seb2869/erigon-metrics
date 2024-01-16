@@ -27,6 +27,7 @@ type namedMetric struct {
 
 type metric interface {
 	marshalTo(prefix string, w io.Writer)
+	metricType() string
 }
 
 var defaultSet = NewSet()

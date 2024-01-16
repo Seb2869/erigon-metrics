@@ -49,8 +49,32 @@ func (s *Set) WritePrometheus(w io.Writer) {
 
 	// Call marshalTo without the global lock, since certain metric types such as Gauge
 	// can call a callback, which, in turn, can try calling s.mu.Lock again.
+	var previous string
 	for _, nm := range sa {
-		nm.metric.marshalTo(nm.name, &bb)
+		var tbb bytes.Buffer
+
+		// write out metric result to a temporary buffer
+		nm.metric.marshalTo(nm.name, &tbb)
+
+		// if we didn't write any metrics, let's not bother
+		// writing any help/type comments
+		if tbb.Len() == 0 {
+			continue
+		}
+
+		// only write the help/type comment on the first found name
+		// we don't want to write comments for every single label a metric might have
+		name, _ := splitMetricName(nm.name)
+		if previous != name {
+			fmt.Fprintf(&bb, "# HELP %s\n", name)
+			fmt.Fprintf(&bb, "# TYPE %s %s\n", name, nm.metric.metricType())
+		}
+
+		// reset the previous name found to the latest one for our next check
+		previous = name
+
+		// write our temp results to final output buffer
+		tbb.WriteTo(&bb)
 	}
 	w.Write(bb.Bytes())
 }
